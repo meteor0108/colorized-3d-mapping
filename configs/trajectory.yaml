@@ -1,0 +1,20 @@
+# Navigation / Trajectory 시각화 (0_, 1_ steps)
+
+trajectory:
+  # 1_step: nav reader (전체 폴더 탐색 후 trajectory 그리기)
+  nav_reader:
+    target_x: 425000
+    target_y: 4.20e6
+    radius: 50000
+    html_output: "./data/output_etc/trajectory_interactive.html"
+    png_output: "./data/output_etc/filtered_trajectory_4way.png"
+
+  # 0_step: 단일 CSV → trajectory plot
+  single_trajectory:
+    arrow_step: 10     # 화살표 그리기 간격
+
+  # Map vs Trajectory 2D 비교 이미지 (0_map_compare)
+  map_compare:
+    pcd_root: "./data/output_map"
+    search_depth: 3
+    save_dir: "./data/output_etc/2D_Map_Images"

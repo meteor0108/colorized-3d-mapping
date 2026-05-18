@@ -1,0 +1,18 @@
+# 통합 기본 Config
+# 다른 모든 yaml을 include. 개별 스크립트는 이 파일만 로드해도 됨.
+
+includes:
+  - sensor_calibration.yaml
+  - paths.yaml
+  - extraction.yaml
+  - projection.yaml
+  - trajectory.yaml
+  - colorize.yaml
+  - merge.yaml
+  - mesh.yaml
+
+# 글로벌 처리 옵션
+runtime:
+  log_level: "INFO"
+  num_workers: 4
+  random_seed: 42

@@ -1,0 +1,23 @@
+# Core
+numpy
+scipy
+pandas
+pyyaml
+natsort
+tqdm
+
+# 3D / CV
+open3d
+opencv-python
+matplotlib
+plotly
+
+# LiDAR-Camera fusion specific
+pygicp           # VGICP (step5)
+
+# Mesh
+torch            # NKSR / Poisson (step6, 7)
+nksr             # https://nksr.s3.ap-northeast-1.amazonaws.com/whl/torch-2.0.0+cu118.html
+
+# ROS bag (step3)
+rosbags

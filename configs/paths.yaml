@@ -1,0 +1,35 @@
+# 입출력 경로 설정
+# 모든 절대경로를 한 곳에서 관리
+
+paths:
+  # 원본 rosbag 데이터 (전처리 입력)
+  data_root: "/media/airlab/hdd/data/KCTC_rosbag/data/"
+
+  # ROS bag 파일 directory (step_pre1 / step3 입력)
+  rosbag_root: "/media/airlab/DAS_ANTLAB/ADD_DATA/Rosbag_Data/"
+
+  # GPS trajectory 결과
+  gps_results_root: "/media/airlab/DAS_ANTLAB/ADD_DATA/Rosbag_Data/gps_results"
+
+  # 출력 루트 (이 디렉토리 기준 상대경로로 구성)
+  output_root: "./data"
+
+outputs:
+  # Step4 자동 컬러라이즈 결과 (구 map/, ouster2 only)
+  step4_map: "./data/output_map"
+  # Step5 VGICP+PGO 자동처리 결과 (구 data_show/output_map)
+  vgicp_pgo_map: "./data/output_map_processed"
+  # Step6/7 메쉬 결과
+  mesh: "./data/output_mesh"
+  # 단일폴더 처리 결과 (step2/step3)
+  pcd: "./data/output_pcd"
+  # Raw PCD 보관 (원본 + deskew + merged_output)
+  raw_pcd: "./data/raw_pcd"
+  # 샘플/테스트용 PCD
+  sample_pcd: "./data/sample_pcd"
+  # 기타 (트래젝토리/리포트/시각화)
+  etc: "./data/output_etc"
+  # 글로벌 맵 병합 결과
+  global_map: "./data/output_map_processed/global_merged"
+  # CSV export 결과 (step_pre1c)
+  csv: "./data/csv"

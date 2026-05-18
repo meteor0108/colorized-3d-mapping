@@ -1,0 +1,52 @@
+# Mesh Reconstruction 설정 (6_step, 7_step)
+
+mesh:
+  # 6_step: NKSR (Neural Kernel Surface Reconstruction)
+  nksr:
+    device: "cuda:0"
+    chunk_size: 5000000
+    normal_k: 30           # KNN 이웃 개수 (10~100, 30 권장)
+    normal_radius: 0.5     # 검색 반경 (m). 야외=0.3~0.7
+    max_points: 10000000   # GPU VRAM에 맞게 조정
+    mise_iter: 2           # 1=빠름, 2=권장, 3=정밀
+    output_format: "ply"
+
+  # Mesh post-processing (6_step utilities)
+  post_process:
+    remove_outliers:
+      enabled: true
+      nb_neighbors: 20
+      std_ratio: 2.0
+    remove_small_components:
+      enabled: true
+      min_triangles: 100
+    simplify:
+      enabled: true
+      target_triangles: 2000000
+    smooth:
+      enabled: false
+      number_of_iterations: 1
+
+  # 7_step: Poisson Surface Reconstruction (chunked)
+  poisson:
+    use_cuda: true
+    verbose: true
+    depth: 9
+    scale: 1.1
+    linear_fit: false
+    chunk:
+      enabled: true
+      overlap: 5.0
+      max_chunk_points: 8000000
+
+  # Batch script 기본값 (6_batch_processing_script.sh가 참조)
+  batch:
+    input_pcd: "2024-10-22-10-45-46_0_full3_corrected_vgicp_pgo.pcd"
+    output_dir: "./data/output_mesh"
+    device: "cuda:0"
+    normal_k: 100
+    normal_radius: 0.5
+    max_points: 20000000
+    mise_iter: 4
+    simplify_triangles: 2000000
+    remove_small_components: 100

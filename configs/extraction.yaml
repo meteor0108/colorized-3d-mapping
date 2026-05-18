@@ -1,0 +1,75 @@
+# Rosbag 추출 / 검증 / 타임스탬프 변환 단계 설정 (step_pre1, pre1b, pre1c, pre2, pre3)
+
+extraction:
+  # 입력 rosbag 경로 (.bag 파일 또는 .bag 들이 들어있는 디렉토리)
+  rosbag_path: ""
+
+  # Sync 기준 토픽 (이 토픽 시각을 기준으로 다른 센서 매칭)
+  sync_reference_topic: "/blackfly/image_raw/compressed"
+
+  # 추출할 토픽들
+  topics:
+    raw_image:
+      - "/a65/image_raw"
+      - "/ouster1/nearir_image"
+      - "/ouster1/range_image"
+      - "/ouster1/reflec_image"
+      - "/ouster1/signal_image"
+      - "/ouster2/nearir_image"
+      - "/ouster2/range_image"
+      - "/ouster2/reflec_image"
+      - "/ouster2/signal_image"
+      - "/ouster3/nearir_image"
+      - "/ouster3/range_image"
+      - "/ouster3/reflec_image"
+      - "/ouster3/signal_image"
+
+    compressed_image:
+      - "/blackfly/image_raw/compressed"
+      # extract2 에서 새로 추가된 토픽들 (필요 시 활성)
+      # - "/image_color/compressed"
+      # - "/image_mono/compressed"
+
+    pointcloud:
+      - "/ouster1/points"
+      - "/ouster2/points"
+      - "/ouster3/points"
+
+    gps:
+      - "/novatel/oem7/odom"
+      - "/novatel/oem7/inspva"
+
+  # 시각화/진행 옵션
+  display: false                  # 진행 상황을 시각적으로 보여줄지
+  progress_bar: true              # CLI progress bar 표시
+  skip_already_processed: true    # navigation.csv가 이미 있는 폴더 건너뛰기
+
+  # 동기화 윈도우 (nanosec, sync_index_timeoffset_extract 함수에 사용)
+  # `data_validation_check2.py` 와 동일한 값. 너무 작으면 매칭 실패, 너무 크면 잘못된 매칭.
+  sync_window_ns: 100000000   # 0.1초
+
+  # rosbag → CSV 변환 시 (step_pre1c)
+  csv_export:
+    topic: "/gps/fix"
+    output_dir: "./data/csv"
+    rosbag_list:
+      - "2024-04-17-12-43-50_0.bag"
+      - "2024-04-17-12-57-08_0.bag"
+      - "2024-04-17-13-03-12_0.bag"
+
+# Dataset 검증 (step_pre2)
+validation:
+  # 검증할 데이터 폴더 (extract 결과)
+  data_root: ""
+
+  # 검증할 항목
+  checks:
+    file_omission: true       # 누락 파일 검사
+    timestamp_sync: true      # timestamp sync 검증
+    navigation_csv: true      # navigation.csv 존재
+
+# Timestamp 시각화 (step_pre3)
+timestamp_viz:
+  csv_path: ""                # *_timestamp.csv
+  output_format: "plotly"     # plotly | matplotlib
+  output_path: "./data/output_etc/timestamp.html"

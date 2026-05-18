@@ -1,0 +1,65 @@
+# LiDAR-Camera Colorize Pipeline 공통 설정
+# 단계 2, 3, 4, 5에서 사용
+
+colorize:
+  # 일반 처리 파라미터
+  processing:
+    distance_threshold: 50    # 거리 필터 (m)
+    projection_distance: 100  # projection 최대 거리 (m)
+    voxel_size: 0.1           # 다운샘플링 voxel 크기 (m)
+    time_tolerance: 0.2       # LiDAR-Image timestamp 매칭 허용 오차 (s)
+    frame_skip: 5             # N개 마다 1개 처리 (1=전체)
+
+  # 사용할 LiDAR 센서
+  sensors:
+    use_ouster1: true
+    use_ouster2: true
+    use_ouster3: true
+
+  # Submap 관리 (4_step, 5_step)
+  submap:
+    enabled: true
+    frame_limit: 200     # N 프레임마다 submap 분할 저장 (4_=200, 5_gpu=50 권장)
+    skip_processed: true # 이미 처리된 폴더 건너뛰기
+
+  # GPU/메모리 관리
+  gpu:
+    enabled: true
+    device: "CUDA:0"
+    release_cache_interval: 10  # N 프레임마다 cuda cache 비우기
+
+  # 4_step (auto: 단순 GNSS 변환)
+  step4_auto:
+    output_prefix: "ouster2"
+    frame_limit: 200
+
+  # 5_step (VGICP + PGO)
+  step5_vgicp_pgo:
+    output_prefix: "full3_vgicp_pgo"
+    frame_limit: 50
+
+    # VGICP (Voxelized GICP) 정합 설정
+    vgicp:
+      enabled: true
+      voxel_size: 0.5
+      window_size: 20           # Sliding window 프레임 개수
+      max_correspondence_distance: 0.5
+      drift_threshold: 1.8      # m. GNSS와 차이 초과 시 GNSS 사용
+      # 추가 옵션 (현재 비활성)
+      num_threads: 4
+      transformation_epsilon: 1.0e-6
+
+    # Pose Graph Optimization
+    pgo:
+      enabled: true
+      gnss_weight: 1000.0       # GNSS unary factor (높을수록 GNSS 강제)
+      odom_weight: 1.0          # VGICP odometry edge weight
+      max_iterations: 50
+      tolerance: 1.0e-6
+      rotation_weight_scale: 0.1
+      delta_clip: 1.0
+
+  # 결과 시각화
+  visualization:
+    draw_coordinates: true
+    coordinate_scale: 5

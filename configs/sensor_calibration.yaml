@@ -1,0 +1,65 @@
+# Camera & LiDAR Calibration Parameters
+# 모든 파이프라인 단계에서 공통으로 사용하는 센서 캘리브레이션 값
+
+camera:
+  # Intrinsic matrix (Blackfly)
+  intrinsic:
+    - [848.018213, -0.875069, 970.050807]
+    - [0.0,        849.002273, 612.744961]
+    - [0.0,        0.0,        1.0]
+
+  # Distortion coefficients (radial + tangential)
+  distortion: [-0.022594, 0.030614, -0.001038, -3.5E-05]
+
+  fisheye: false
+
+  # Vignetting / circular mask 보정
+  vignetting:
+    enabled: true
+    strength: 0.4
+    # 원형 마스크 (cx, cy, r) - 카메라 가시영역 마스킹
+    mask_params: [960, 600, 1022]
+    # 차량 후드/하단 컷오프 픽셀 Y 좌표
+    vehicle_cutoff_y: 829
+
+# LiDAR → Camera extrinsics (T_cam_from_lidar)
+lidar_to_camera:
+  ouster1:
+    - [-4.72864607e-01, -8.76671114e-01, -8.85822813e-02, -5.17475772e-01]
+    - [ 1.25955567e-02,  9.37965264e-02, -9.95511709e-01, -6.61842700e-04]
+    - [ 8.81045070e-01, -4.71857997e-01, -3.33108970e-02, -6.78935532e-02]
+    - [ 0.0,             0.0,             0.0,             1.0]
+  ouster2:
+    - [ 9.06068473e-03, -9.99958607e-01, -8.29860879e-04, -2.71261603e-02]
+    - [-1.29545341e-02,  7.12443573e-04, -9.99915833e-01, -1.03037610e-01]
+    - [ 9.99875034e-01,  9.07067258e-03, -1.29475426e-02, -8.95660947e-02]
+    - [ 0.0,             0.0,             0.0,             1.0]
+  ouster3:
+    - [ 0.49316712, -0.86663967,  0.075643,    0.4635232]
+    - [ 0.0065567,  -0.08324712, -0.99650736, -0.01027599]
+    - [ 0.86990988,  0.49194064, -0.03537245, -0.07933007]
+    - [ 0.0,         0.0,         0.0,         1.0]
+
+# GPS → Ouster2 extrinsic (raw before R_fix)
+# R_fix(X/Y 반전) 및 y_translation 부호 반전이 자동 적용됨
+gps_to_ouster2_raw:
+  - [-0.986173,   0.0251448,  0.163798,  -0.406935]
+  - [-0.0267946, -0.99961,   -0.00787014, 0.179598]
+  - [ 0.163536,  -0.0121502,  0.986463,   0.221061]
+  - [ 0.0,        0.0,        0.0,        1.0]
+
+# 좌표계 보정 회전 (GNSS 캘값 위치/회전 보정용)
+gps_axis_fix:
+  - [-1,  0, 0, 0]
+  - [ 0, -1, 0, 0]
+  - [ 0,  0, 1, 0]
+  - [ 0,  0, 0, 1]
+
+# ROS topics (rosbag pipeline에서 사용)
+ros_topics:
+  image: "/blackfly/image_raw/compressed"
+  lidar1: "/ouster1/points"
+  lidar2: "/ouster2/points"
+  lidar3: "/ouster3/points"
+  gps: "/novatel/oem7/odom"
+  scan_period: 0.1

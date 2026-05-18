@@ -1,0 +1,25 @@
+# 글로벌 맵 병합 설정 (0_step_merge_*)
+
+merge:
+  # 자동 그룹핑 병합 (radius 기반)
+  auto_merge:
+    voxel_size: 0.5
+    group_radius: 1000.0       # m. 한 그룹에 묶일 최대 거리
+    max_folders_per_group: 5
+    ban_list: []               # 제외할 폴더명
+    map_root: "./data/output_map"
+    save_subdir: "Global_Map_Grouped_Submaps(voxel0.5)"
+    use_dual_gpu: true         # GPU 2개 round-robin
+
+  # Input 리스트 기반 병합 (UTM)
+  input_merge:
+    voxel_size: null            # null이면 downsample 안 함
+    map_root: "./data/output_map"
+    save_subdir: "Global_Map_UTM_Merged"
+    save_filename: "Merged_Map_UTM_Coords.pcd"
+    input_list:
+      - "2024-10-22-10-47-05_0"
+      - "2024-10-22-10-52-16_1"
+      - "2024-10-22-10-54-02_0"
+      - "2024-10-22-10-45-46_0"
+    part_pattern: "{folder_name}*full3_corrected_vgicp_pgo.pcd"

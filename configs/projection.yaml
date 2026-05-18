@@ -1,0 +1,22 @@
+# Projection 시각화 설정 (0_step projection)
+
+projection:
+  # 입력 폴더 (단일 폴더 모드)
+  input_folder: "/media/airlab/hdd/data/KCTC_rosbag/data/2024-06-15/4.훈련장_노랑_주행루트/2024-06-15-14-43-18_11"
+
+  # 처리할 LiDAR (multi-lidar overlay)
+  use_ouster1: true
+  use_ouster2: true
+  use_ouster3: true
+
+  # Projection 파라미터
+  max_range: 100        # m (color mapping용)
+  point_size: 3
+  alpha: 0.1
+
+  debug:
+    print_valid_count: true
+    warn_behind_camera: true
+
+  save_path: "calibration_projection.png"
+  show_window: true
