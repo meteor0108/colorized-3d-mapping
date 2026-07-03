@@ -39,6 +39,65 @@ mesh:
       overlap: 5.0
       max_chunk_points: 8000000
 
+  # 8_step: Gaussian Splatting (2DGS) 기반 mesh
+  # 목표=기하 정확도, 단위=submap. step7b로 dataset 준비 → step8로 학습+TSDF 추출.
+  gaussian:
+    # --- step7b: GS dataset 준비 ---
+    dataset:
+      # 입력 submap 폴더 (없으면 projection.input_folder 사용). blackfly/ + ouster*/points/ + navigation.csv 필요
+      input_folder: null
+      output_dir: "./data/gs_dataset"   # {output_dir}/{submap_name}/ 에 export
+      lidars: ["ouster1", "ouster2", "ouster3"]
+      pose_lidar: "ouster2"             # 카메라 포즈 계산 기준 LiDAR (cam이 부착된 센서)
+      undistort: true                   # GS는 pinhole 가정 → distortion 제거
+      apply_vignetting: true            # step2와 동일 보정
+      range_filter_m: 50.0              # init/depth용 LiDAR 거리 컷
+      time_tolerance: 0.2               # 이미지-LiDAR timestamp 매칭 (s)
+      depth_export: true                # 프레임별 sparse metric depth(.npy)
+      overlay_export: true              # 재투영 검증 오버레이(.jpg) — M1 핵심
+      max_frames: null                  # 디버그용 프레임 수 제한
+
+    # --- step8: 2DGS 학습 ---
+    backbone: "2dgs"                     # "2dgs" | "gsplat-2dgs" (설치된 구현 선택)
+    repo_path: "../third_party/2d-gaussian-splatting"   # hbb1/2d-gaussian-splatting 클론 위치 (mesh용)
+    repo_path_3dgs: "../third_party/gaussian-splatting"  # graphdeco-inria/gaussian-splatting (렌더용, 더 sharp)
+    depth_ratio: 1.0                     # bounded submap=1(median depth), unbounded=0
+    sh_degree: 3
+    train:
+      iterations: 20000
+      lambda_dssim: 0.2                 # SSIM 비중 (RGB)
+      lambda_depth: 0.7                 # LiDAR sparse depth L1 (저텍스처/원거리 기하 고정)
+      lambda_sky: 0.05                  # sky 영역 alpha 억제 (gsplat step13, 하늘 floater↓)
+      depth_ramp_iters: 3000            # depth loss ramp-up 구간
+      lambda_normal: 0.05               # surfel↔LiDAR normal consistency (7k 이후 증가)
+      lambda_dist: 100.0                # 2DGS depth-distortion reg (3k 이후)
+      optimize_camera_pose: false       # ghosting 보이면 true (GNSS 잔차 보정)
+      sky_far_depth: 80.0               # 하늘/원거리 far-depth 처리 임계
+      # --- VRAM 안전장치 (대규모/긴 시퀀스 OOM 방지) ---
+      max_init_points: 1400000          # init Gaussian 상한 (초과 시 다운샘플)
+      max_gaussians: 6000000            # densification 총량 상한 (24GB VRAM 기준 안전)
+      lr_scale_cap: 25.0                # spatial_lr_scale 상한 (대규모 scene에서 lr 발산 방지)
+      # --- 고품질 렌더 (step11 3DGS) ---
+      densify_grad_threshold: 0.00013   # 낮을수록 densification 적극적(더 많은 Gaussian, 더 sharp)
+      densify_until_iter: 22000         # densification 지속 구간
+      antialiasing: true                # rasterizer anti-aliasing (가장자리 깔끔)
+      # --- LiDAR 기하 제약 (off-axis floater 억제, step11 3DGS) ---
+      lambda_scale: 0.1                 # 큰(바늘형) Gaussian penalty
+      max_scale_m: 0.3                  # 이 크기 초과 scale(m)에만 penalty
+      lidar_prune_dist: 1.0             # LiDAR 표면에서 이 거리(m) 이상 Gaussian은 prune
+      lidar_prune_interval: 1000        # prune 주기(iter)
+      # 주의: 한 폴더가 bounded submap이 아니라 긴 주행 시퀀스(수백 m+)면
+      #       step7b --max-frames 로 윈도우를 끊거나(권장), 추후 타일링 필요.
+
+    # --- step8: TSDF mesh 추출 ---
+    extract:
+      tsdf_voxel: 0.05                  # m (0.03→0.05: voxel 수↓, RAM 절약)
+      sdf_trunc_mult: 4.0               # sdf_trunc = tsdf_voxel * mult
+      depth_trunc: 25.0                 # m (60→25: 원거리/하늘 garbage 융합 차단, RAM 폭발 방지)
+      alpha_thresh: 0.5                 # rend_alpha < 임계면 depth 무시 (하늘/미렌더 영역)
+      density_cull_quantile: 0.1        # 저밀도 vertex 컬링
+      run_post_process: true            # step6 post_process 재사용
+
   # Batch script 기본값 (6_batch_processing_script.sh가 참조)
   batch:
     input_pcd: "2024-10-22-10-45-46_0_full3_corrected_vgicp_pgo.pcd"

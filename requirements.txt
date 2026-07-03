@@ -16,8 +16,22 @@ plotly
 pygicp           # VGICP (step5)
 
 # Mesh
-torch            # NKSR / Poisson (step6, 7)
+torch            # NKSR / Poisson (step6, 7) / GS (step8~14)
 nksr             # https://nksr.s3.ap-northeast-1.amazonaws.com/whl/torch-2.0.0+cu118.html
 
-# ROS bag (step3)
+# --- Gaussian Splatting reconstruction (step7b~13) ---
+gsplat           # gsplat rasterizer (step13 depth-supervised 3DGS)
+# 2DGS/3DGS 백본은 third_party/ 에 별도 클론 + CUDA rasterizer 컴파일 필요:
+#   third_party/2d-gaussian-splatting  (hbb1)   → diff-surfel-rasterization + simple-knn
+#   third_party/gaussian-splatting     (inria)  → diff-gaussian-rasterization
+# 전용 conda env(kctc_gs) 권장 — rasterizer는 CUDA arch에 맞춰 빌드.
+
+# --- Depth completion / mono depth (step14) ---
+transformers     # Depth-Anything-V2-Metric-Outdoor (mono metric depth)
+pillow
+
+# --- Dynamic object removal (pre-pass, step_pre_dynmask/inpaint) ---
+# SAM3 (segmentation) + LaMa (inpaint) — 별도 가중치/설치 필요
+
+# ROS bag (step3, step_pre1)
 rosbags
